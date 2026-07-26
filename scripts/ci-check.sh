@@ -23,8 +23,10 @@ for path in Path("luci").glob("*.json"):
     print(f"json OK: {path}")
 PY
 ./scripts/test-runtime.sh
-./scripts/test-apk-bootstrap.sh
 ./scripts/build-ipk.sh
+# The staged tree is exactly what lands on the router, so check it rather than
+# the sources: the build host has GNU coreutils and the router does not.
+./scripts/check-busybox-compat.sh "${BUILD_DIR:-$root/build/ipk}/stage"
 first="$(sha256sum dist/*.ipk | awk '{print $1}')"
 ./scripts/build-ipk.sh
 second="$(sha256sum dist/*.ipk | awk '{print $1}')"

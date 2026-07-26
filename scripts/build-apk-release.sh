@@ -14,7 +14,7 @@ root="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
 sdk="${OPENWRT_SDK_DIR:-}"
 signing_key="${OPENWRT_APK_SIGNING_KEY:-}"
 public_key="$root/$OPENWRT_APK_KEY_FILE"
-output="$root/dist/apk-release"
+output="$root/dist/apk"
 
 [ -n "$sdk" ] || fail 'OPENWRT_SDK_DIR is required'
 [ -d "$sdk" ] || fail "SDK directory not found: $sdk"
@@ -57,17 +57,16 @@ package="$root/dist/${PKG_NAME}-${PKG_VERSION}.apk"
 "$apk_tool" --allow-untrusted adbsign --sign-key "$signing_key" "$package"
 "$apk_tool" --keys-dir "$root/keys" verify "$package"
 
+# Only this package is published. Nikitid/openwrt-feed collects the released
+# APK and builds the shared signed index, so no public key, bootstrap script or
+# index is shipped from here.
 rm -rf "$output"
 mkdir -p "$output"
 cp "$package" "$output/"
-cp "$public_key" "$output/nikitid-openwrt-release.pem"
-cp "$root/scripts/install-openwrt25.sh" "$output/install-openwrt25.sh"
-chmod 0755 "$output/install-openwrt25.sh"
 (
   cd "$output"
-  sha256sum "${PKG_NAME}-${PKG_VERSION}.apk" \
-    nikitid-openwrt-release.pem install-openwrt25.sh >SHA256SUMS.apk
+  sha256sum "${PKG_NAME}-${PKG_VERSION}.apk" >SHA256SUMS.apk
   sha256sum -c SHA256SUMS.apk
 )
 
-printf 'Signed APK release bundle built in %s\n' "$output"
+printf 'Signed APK built in %s\n' "$output"

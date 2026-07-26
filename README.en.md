@@ -28,10 +28,26 @@ edit widget content.
 Run `./scripts/ci-check.sh` to validate the source and build a deterministic
 IPK.
 
-OpenWrt 25.12 releases use the shared P-256 publisher key already used by
-IKEv2 Manager. The private key is supplied only through the protected
-`OPENWRT_APK_SIGNING_KEY` CI secret. See
-[Shared APK feed](docs/SHARED_APK_FEED.md) for the publishing contract and
-legacy-key compatibility.
+On OpenWrt 25.12 install it from the shared feed, which sets up the publisher
+key and installs only the named package:
+
+```sh
+wget -O /tmp/nikitid-feed.sh \
+  https://raw.githubusercontent.com/Nikitid/openwrt-feed/feed/install.sh
+sh /tmp/nikitid-feed.sh luci-app-overview-manager
+```
+
+Later updates name the package too, so the rest of the router is left alone:
+
+```sh
+apk update
+apk upgrade luci-app-overview-manager
+```
+
+This repository builds and signs only its own package and publishes it as a
+release asset; [Nikitid/openwrt-feed](https://github.com/Nikitid/openwrt-feed)
+collects the member releases and publishes the signed index. The private key is
+supplied only through the protected `OPENWRT_APK_SIGNING_KEY` Actions secret.
+See [Shared APK feed](docs/SHARED_APK_FEED.md) for the publishing contract.
 
 [MIT](LICENSE)

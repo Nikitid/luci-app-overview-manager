@@ -64,7 +64,7 @@ OPENWRT_SDK_DIR=/path/to/openwrt-sdk-25.12.x-target \
   ./scripts/build-apk.sh
 ```
 
-Релизный APK подписывается общим ключом приложений OpenWrt:
+Релизный APK подписывается общим ключом издателя:
 
 ```sh
 OPENWRT_SDK_DIR=/path/to/openwrt-sdk-25.12.x-target \
@@ -72,20 +72,39 @@ OPENWRT_APK_SIGNING_KEY=/secure/path/release-private.pem \
   ./scripts/build-apk-release.sh
 ```
 
-Приватный ключ не хранится в репозитории. Публичный ключ совместим с уже
-установленным ключом IKEv2 Manager. Устройство с этим ключом доверяет пакетам
-обоих проектов.
+Приватный ключ не хранится в репозитории. Репозиторий собирает и подписывает
+только свой пакет и публикует его ассетом релиза; индекс собирает
+[Nikitid/openwrt-feed](https://github.com/Nikitid/openwrt-feed). Подробности:
+[общий APK-feed](docs/SHARED_APK_FEED.md).
 
-После публикации пакета и обновления общего feed установка OpenWrt 25.12:
+## Установка
+
+### OpenWrt 24.10
+
+Скачайте `luci-app-overview-manager_*_all.ipk` из
+[Releases](https://github.com/Nikitid/luci-layout/releases) и загрузите его
+через `System -> Software -> Upload Package`.
+
+### OpenWrt 25.12
 
 ```sh
-wget -O /tmp/install-overview-manager.sh \
-  https://github.com/Nikitid/luci-layout/releases/latest/download/install-openwrt25.sh
-sh /tmp/install-overview-manager.sh
+wget -O /tmp/nikitid-feed.sh \
+  https://raw.githubusercontent.com/Nikitid/openwrt-feed/feed/install.sh
+sh /tmp/nikitid-feed.sh luci-app-overview-manager
 ```
 
-Устройство без установленного общего ключа получает его через bootstrap с
-проверкой SHA-256. Подробности: [общий APK-feed](docs/SHARED_APK_FEED.md).
+Установщик проверяет публичный ключ издателя по закреплённой контрольной сумме,
+подключает общий подписанный репозиторий приложений и ставит только указанный
+пакет.
+
+Последующие обновления:
+
+```sh
+apk update
+apk upgrade luci-app-overview-manager
+```
+
+Обновляется только Overview Manager, а не все пакеты роутера.
 
 ## Лицензия
 

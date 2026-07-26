@@ -44,11 +44,37 @@ key_material="$(tracked_files |
 [ -z "$key_material" ] ||
   fail "private key material found in: $(printf '%s' "$key_material" | tr '\n' ' ')"
 
-grep -Fq "OPENWRT_APK_TRUST_SHA256=$OPENWRT_APK_TRUST_SHA256" \
-  "$root/scripts/install-openwrt25.sh" ||
-  fail 'bootstrap public-key checksum is out of sync'
-grep -Fq "OPENWRT_APK_CHANNEL_BASE=$OPENWRT_APK_CHANNEL_BASE" \
-  "$root/scripts/install-openwrt25.sh" ||
-  fail 'bootstrap feed URL is out of sync'
+# Contract with the shared feed, docs/SHARED_APK_FEED.md: this repository signs
+# and publishes only its own package. It must not host a feed URL, ship a trust
+# bootstrap of its own or assemble an index.
+[ "${OPENWRT_FEED_REPOSITORY:-}" = Nikitid/openwrt-feed ] ||
+  fail 'OPENWRT_FEED_REPOSITORY must name the shared feed'
+
+[ ! -e "$root/scripts/install-openwrt25.sh" ] ||
+  fail 'the shared installer replaced scripts/install-openwrt25.sh; remove it'
+
+if grep -rlE 'raw\.githubusercontent\.com/Nikitid/[A-Za-z0-9._-]+/apk-feed' \
+    "$root/scripts" "$root/docs" "$root/.github" "$root"/*.md "$root"/*.env \
+    2>/dev/null | grep -q .; then
+  fail 'a retired per-application feed URL is still referenced'
+fi
+
+# Contract rule: every package transaction names the packages it touches, so a
+# release never upgrades the whole router.
+blanket="$(tracked_files |
+  grep -E '\.(sh|md|yml|env)$' |
+  xargs awk '
+    /(apk|opkg)[ \t]+upgrade/ {
+      rest = $0
+      sub(/.*(apk|opkg)[ \t]+upgrade/, "", rest)
+      gsub(/[ \t]*--[a-zA-Z-]+/, "", rest)
+      gsub(/[ \t]/, "", rest)
+      if (rest == "" || rest ~ /^([;&|#]|\|\||&&)/)
+        printf "%s:%d\n", FILENAME, FNR
+    }
+  ' 2>/dev/null)"
+[ -z "$blanket" ] ||
+  fail "package upgrade without an explicit package name: $(
+    printf '%s' "$blanket" | tr '\n' ' ')"
 
 printf 'APK trust configuration OK\n'

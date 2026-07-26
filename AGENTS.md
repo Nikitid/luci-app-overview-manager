@@ -17,6 +17,14 @@ the OpenWrt Status Overview page.
   normalises whitespace before hashing, while `po2lmo` hashes the raw msgid.
 - The Overview include runs on every poll cycle. Keep it free of DOM writes
   when the layout has not changed.
+- This repository is a member of the shared feed and signs only its own
+  package: no feed URL, no bootstrap script, no index. See
+  [Shared APK feed](docs/SHARED_APK_FEED.md).
+- Name the package in every package-manager command, in scripts and in docs
+  alike. Never upgrade the whole router.
+- Shell that ships to the router must run under BusyBox ash and BusyBox
+  utilities. `scripts/check-busybox-compat.sh` scans the staged package,
+  because the build host's GNU coreutils hide the difference.
 
 ## Validation
 

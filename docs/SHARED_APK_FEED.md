@@ -1,51 +1,70 @@
 # Shared OpenWrt 25.12 APK feed
 
+Overview Manager is a member application of the shared feed
+[Nikitid/openwrt-feed](https://github.com/Nikitid/openwrt-feed). The member
+contract is `docs/MEMBER_INTEGRATION.md` in that repository;
+`Nikitid/ikev2-openwrt` is the reference implementation.
+
 ## Trust identity
 
-Overview Manager uses the existing IKEv2 Manager P-256 release key as the
-shared publisher identity.
+One publisher key signs every member package and the index.
 
 - tracked public key: `keys/nikitid-openwrt-release.pem`;
-- legacy public-key name: `ikev2-manager-release.pem`;
 - SHA-256:
   `f27474d9261f1084350cf4ba34ecdff29e533769c36483d8dd85566e30a6a703`;
-- private key source: protected `OPENWRT_APK_SIGNING_KEY` CI secret only.
+- private key source: protected `OPENWRT_APK_SIGNING_KEY` Actions secret only,
+  configured identically in every member repository.
 
-The two public-key files may have different names but must contain identical
-key material. Existing routers with the legacy key already trust Overview
-Manager packages signed by the shared private key.
+A per-application key would add another trust anchor to every router without
+adding isolation, because apk binds a key to neither a package nor a
+repository.
 
-## Feed ownership
+## What this repository does
 
-The stable `apk-feed` branch in `ikev2-manager-openwrt` remains the single
-writer of the shared `packages.adb` index. Application repositories publish
-signed APK release assets but must not independently overwrite that branch.
+A stable tag builds the package with the pinned OpenWrt SDK, signs it with the
+publisher key and publishes it as the release asset
+`luci-app-overview-manager-<version>.apk`.
 
-For an Overview Manager release:
+It does not build an index, does not download sibling applications and does not
+host a feed URL. A release therefore never depends on another application being
+ready. The feed is hosted separately so that renaming or retiring this project
+cannot move a URL already recorded in `/etc/apk/repositories.d` on an installed
+router.
 
-1. tag and publish the Overview Manager release;
-2. build and verify `luci-app-overview-manager-<version>.apk` with
-   `scripts/build-apk-release.sh`;
-3. make the signed APK available as a release asset;
-4. refresh the central feed from `ikev2-manager-openwrt`;
-5. verify the package and rebuilt index with the shared public key;
-6. publish the rebuilt `packages.adb`, all current APKs and the public key.
+After a release the workflow notifies the feed with a `repository_dispatch`
+using `OPENWRT_FEED_DISPATCH_TOKEN`. That step is best effort: the feed also
+rebuilds on a schedule and on manual dispatch, so a missing or expired token
+delays the index instead of failing the release.
 
-The central index must retain existing packages when one application is
-updated. It must never be regenerated from only the package that triggered the
-workflow.
+Registration lives in the feed repository, as an `owner/repo:package` entry in
+`FEED_MEMBERS`. A member without a published release is skipped, so until the
+first tag is published the application is simply absent from the index.
 
-## Bootstrap compatibility
+## Installation and updates
 
-`scripts/install-openwrt25.sh` accepts either:
+The feed ships one installer for every member application, so this repository
+carries no bootstrap script of its own:
 
-- `/etc/apk/keys/nikitid-openwrt-release.pem`; or
-- `/etc/apk/keys/ikev2-manager-release.pem`.
+```sh
+wget -O /tmp/nikitid-feed.sh \
+  https://raw.githubusercontent.com/Nikitid/openwrt-feed/feed/install.sh
+sh /tmp/nikitid-feed.sh luci-app-overview-manager
+```
 
-It also reuses the existing `ikev2-manager.list` repository entry when it
-already points to the shared feed. New installations use generic
-`nikitid-openwrt` names.
+Every documented and scripted package transaction names the packages it
+touches:
 
-The current feed supports `mediatek/filogic` with
-`aarch64_cortex-a53`. Additional targets require signed APKs for those
-architectures and corresponding index entries.
+```sh
+apk update
+apk upgrade luci-app-overview-manager
+```
+
+A blanket upgrade of the whole router is never used or documented;
+`scripts/check-apk-trust.sh` fails the build if one appears.
+
+## Targets
+
+The feed currently builds for `mediatek/filogic` with `aarch64_cortex-a53`.
+Additional targets need signed packages for those architectures and matching
+index entries. The IPK path is architecture-independent and works on OpenWrt
+24.10 regardless of the feed.
