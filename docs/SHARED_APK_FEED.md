@@ -31,10 +31,23 @@ ready. The feed is hosted separately so that renaming or retiring this project
 cannot move a URL already recorded in `/etc/apk/repositories.d` on an installed
 router.
 
-After a release the workflow notifies the feed with a `repository_dispatch`
-using `OPENWRT_FEED_DISPATCH_TOKEN`. That step is best effort: the feed also
-rebuilds on a schedule and on manual dispatch, so a missing or expired token
-delays the index instead of failing the release.
+After a release the workflow can notify the feed with a `repository_dispatch`
+using `OPENWRT_FEED_DISPATCH_TOKEN`, so the index rebuilds at once. That step is
+best effort by contract: it exits successfully when the secret is absent,
+because the feed also rebuilds on a schedule and on manual dispatch, so a
+missing or expired token delays the index instead of failing a release.
+
+**That token is deliberately not configured here.** Triggering another
+repository needs a credential that would have to be copied into every member
+repository, and its blast radius is write access to the feed every router
+trusts. The only thing gained is not waiting for the scheduled rebuild, which
+is a poor trade for infrequent releases. Refresh the index directly instead:
+
+```sh
+gh workflow run "Build feed" --repo Nikitid/openwrt-feed
+```
+
+Reversing this decision needs no change to the workflow — only the secret.
 
 Registration lives in the feed repository, as an `owner/repo:package` entry in
 `FEED_MEMBERS`. A member without a published release is skipped, so until the

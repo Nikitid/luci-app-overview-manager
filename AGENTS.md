@@ -5,6 +5,17 @@
 This repository contains a LuCI application for ordering and hiding widgets on
 the OpenWrt Status Overview page.
 
+Read [Implementation notes](docs/IMPLEMENTATION_NOTES.md) before changing the
+Overview include, the translation catalogs or anything that ships to the router.
+It records the upstream LuCI behaviour these depend on, which is not visible
+from this repository, and how to re-verify each point.
+
+Documentation splits by audience. `docs/` is published and covers the codebase,
+the upstream behaviour it relies on and the feed contract. `local/` is
+untracked and holds notes tied to one machine, router or account — device
+access, deployment and verification procedures, release runbook, secret
+handling. Keep hostnames, paths and credential handling out of `docs/`.
+
 ## Working rules
 
 - Preserve OpenWrt 24.10 and 25.12 compatibility.
