@@ -1,5 +1,14 @@
 # Repository Guidelines
 
+## Start of Work
+
+- Read `docs/MAP.md` to find the files a task touches.
+- Read the sibling OpenWrt repositories' `docs/TRAPS.md` before changing LuCI
+  code: the resource-cache, ACL-path and CSS-specificity traps recorded there
+  apply to every LuCI application here.
+- Run `git status -sb` and preserve unrelated changes.
+
+
 ## Scope
 
 This repository contains a LuCI application for ordering and hiding widgets on
