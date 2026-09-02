@@ -44,7 +44,8 @@ key_material="$(tracked_files |
 [ -z "$key_material" ] ||
   fail "private key material found in: $(printf '%s' "$key_material" | tr '\n' ' ')"
 
-# Contract with the shared feed, docs/SHARED_APK_FEED.md: this repository signs
+# Contract with the shared feed (see openwrt-feed/docs/MEMBER_INTEGRATION.md):
+# this repository signs
 # and publishes only its own package. It must not host a feed URL, ship a trust
 # bootstrap of its own or assemble an index.
 [ "${OPENWRT_FEED_REPOSITORY:-}" = Nikitid/openwrt-feed ] ||

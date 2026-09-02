@@ -75,7 +75,7 @@ OPENWRT_APK_SIGNING_KEY=/secure/path/release-private.pem \
 Приватный ключ не хранится в репозитории. Репозиторий собирает и подписывает
 только свой пакет и публикует его ассетом релиза; индекс собирает
 [Nikitid/openwrt-feed](https://github.com/Nikitid/openwrt-feed). Подробности:
-[общий APK-feed](docs/SHARED_APK_FEED.md).
+[общий APK-feed](https://github.com/Nikitid/openwrt-feed/blob/main/docs/MEMBER_INTEGRATION.md).
 
 ## Установка
 
@@ -105,6 +105,12 @@ apk upgrade luci-app-overview-manager
 ```
 
 Обновляется только Overview Manager, а не все пакеты роутера.
+
+## Документация
+
+- [Карта репозитория](docs/MAP.md) — где что лежит
+- [Архитектура](docs/ARCHITECTURE.md) — почему страница устроена именно так
+- [Правила работы](AGENTS.md)
 
 ## Лицензия
 

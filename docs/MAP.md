@@ -29,6 +29,5 @@ which sections appear, in what order, and what each one shows.
 | --- | --- |
 | `AGENTS.md` | the rules of working here |
 | `docs/MAP.md` | this file |
-| `docs/IMPLEMENTATION_NOTES.md` | why the page is built the way it is |
-| `docs/SHARED_APK_FEED.md` | how the shared feed is used |
+| `docs/ARCHITECTURE.md` | why the page is built the way it is |
 | `README.md` | operator-facing, Russian |

@@ -14,7 +14,7 @@
 This repository contains a LuCI application for ordering and hiding widgets on
 the OpenWrt Status Overview page.
 
-Read [Implementation notes](docs/IMPLEMENTATION_NOTES.md) before changing the
+Read [Architecture](docs/ARCHITECTURE.md) before changing the
 Overview include, the translation catalogs or anything that ships to the router.
 It records the upstream LuCI behaviour these depend on, which is not visible
 from this repository, and how to re-verify each point.
@@ -39,7 +39,7 @@ handling. Keep hostnames, paths and credential handling out of `docs/`.
   when the layout has not changed.
 - This repository is a member of the shared feed and signs only its own
   package: no feed URL, no bootstrap script, no index. See
-  [Shared APK feed](docs/SHARED_APK_FEED.md).
+  [Joining the shared feed](https://github.com/Nikitid/openwrt-feed/blob/main/docs/MEMBER_INTEGRATION.md).
 - Name the package in every package-manager command, in scripts and in docs
   alike. Never upgrade the whole router.
 - Shell that ships to the router must run under BusyBox ash and BusyBox
