@@ -27,7 +27,8 @@ which sections appear, in what order, and what each one shows.
 
 | file | for |
 | --- | --- |
-| `AGENTS.md` | the rules of working here |
 | `docs/MAP.md` | this file |
+| `docs/DEVELOPMENT.md` | building, signing and releasing |
 | `docs/ARCHITECTURE.md` | why the page is built the way it is |
-| `README.md` | operator-facing, Russian |
+| `README.md` | user-facing, English |
+| `README.ru.md` | the Russian version |

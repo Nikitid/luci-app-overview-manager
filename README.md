@@ -1,89 +1,39 @@
-# Overview Manager для OpenWrt
+# Overview Manager for OpenWrt
 
-[English](README.en.md)
+[Русский](README.ru.md)
 
-LuCI-приложение для настройки карточек на странице `Status -> Overview`.
-Позволяет менять порядок виджетов перетаскиванием, поднимать и опускать их
-кнопками и полностью скрывать ненужные карточки.
+[![CI](https://github.com/Nikitid/luci-app-overview-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/Nikitid/luci-app-overview-manager/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Nikitid/luci-app-overview-manager)](https://github.com/Nikitid/luci-app-overview-manager/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Как это работает
+The `luci-app-overview-manager` package is a LuCI application for arranging
+the cards on the **Status -> Overview** page.
 
-Штатный LuCI загружает файлы из
-`/www/luci-static/resources/view/status/include` в алфавитном порядке.
-Overview Manager добавляет ранний служебный include, сопоставляет карточки с
-исходными файлами и применяет сохранённую в UCI раскладку к DOM.
+## Features
 
-Файлы других пакетов не изменяются, не переименовываются и не удаляются.
-После удаления Overview Manager штатное поведение LuCI восстанавливается
-автоматически.
+- reorder widgets by dragging or with the up and down buttons;
+- hide cards you do not need;
+- works with third-party widgets installed as a LuCI status include;
+- the layout is stored in UCI and shared by every browser.
 
-## Совместимость
+## Requirements
 
-- официальный OpenWrt `24.10.x` с `opkg`;
-- официальный OpenWrt `25.12.x` с `apk`;
-- стандартная страница `luci-mod-status` Status Overview;
-- сторонние виджеты, установленные как LuCI status include.
+- official OpenWrt `24.10.x` with `opkg`;
+- official OpenWrt `25.12.x` with `apk`;
+- the stock `luci-mod-status` Status Overview page;
+- third-party widgets installed as a LuCI status include.
 
-В OpenWrt 25.12 штатная кнопка Hide хранит состояние отдельно в
-`localStorage` конкретного браузера. Она продолжает работать независимо от
-общей раскладки Overview Manager.
+On OpenWrt 25.12 the stock Hide button keeps its state separately, in the
+`localStorage` of one browser. It keeps working independently of the shared
+Overview Manager layout.
 
-## Переводы
-
-Интерфейс использует штатный механизм LuCI: `_()` в JavaScript и каталоги
-gettext в `po/`. При сборке `po/<язык>/overview-manager.po` компилируется в
-`/usr/lib/lua/luci/i18n/overview-manager.<язык>.lmo` и попадает в основной
-пакет, а `/etc/uci-defaults/luci-app-overview-manager` регистрирует язык в
-`luci.languages`. Язык интерфейса следует настройке LuCI, отдельный пакет
-`luci-i18n-*` не требуется.
-
-Пакет переводит только свои строки: для полностью русского LuCI нужен ещё
-`luci-i18n-base-ru`. Новый язык добавляется каталогом
-`po/<язык>/overview-manager.po`; соответствие каталогов исходникам проверяет
-`scripts/test-po2lmo.py`.
-
-## Ограничения
-
-У LuCI status include нет общего описания внутренних полей: каждый виджет
-реализует произвольные `load()` и `render()`. Поэтому Overview Manager
-настраивает порядок и видимость карточек, но не редактирует их содержимое.
-
-Скрытый виджет не отображается, однако его штатный сбор данных может
-продолжать выполняться при опросе страницы.
-
-## Сборка и проверка
-
-```sh
-./scripts/ci-check.sh
-```
-
-IPK создаётся в `dist/`. APK собирается официальным SDK OpenWrt 25.12:
-
-```sh
-OPENWRT_SDK_DIR=/path/to/openwrt-sdk-25.12.x-target \
-  ./scripts/build-apk.sh
-```
-
-Релизный APK подписывается общим ключом издателя:
-
-```sh
-OPENWRT_SDK_DIR=/path/to/openwrt-sdk-25.12.x-target \
-OPENWRT_APK_SIGNING_KEY=/secure/path/release-private.pem \
-  ./scripts/build-apk-release.sh
-```
-
-Приватный ключ не хранится в репозитории. Репозиторий собирает и подписывает
-только свой пакет и публикует его ассетом релиза; индекс собирает
-[Nikitid/openwrt-feed](https://github.com/Nikitid/openwrt-feed). Подробности:
-[общий APK-feed](https://github.com/Nikitid/openwrt-feed/blob/main/docs/MEMBER_INTEGRATION.md).
-
-## Установка
+## Installation
 
 ### OpenWrt 24.10
 
-Скачайте `luci-app-overview-manager_*_all.ipk` из
-[Releases](https://github.com/Nikitid/luci-layout/releases) и загрузите его
-через `System -> Software -> Upload Package`.
+Download `luci-app-overview-manager_*_all.ipk` from
+[Releases](https://github.com/Nikitid/luci-app-overview-manager/releases) and upload it
+through **System -> Software -> Upload Package**.
 
 ### OpenWrt 25.12
 
@@ -93,25 +43,73 @@ wget -O /tmp/nikitid-feed.sh \
 sh /tmp/nikitid-feed.sh luci-app-overview-manager
 ```
 
-Установщик проверяет публичный ключ издателя по закреплённой контрольной сумме,
-подключает общий подписанный репозиторий приложений и ставит только указанный
-пакет.
+The installer verifies the publisher public key against a pinned checksum,
+adds the shared signed repository and installs only the named package.
 
-Последующие обновления:
+Later upgrades:
 
 ```sh
 apk update
 apk upgrade luci-app-overview-manager
 ```
 
-Обновляется только Overview Manager, а не все пакеты роутера.
+Only Overview Manager is upgraded, never every package on the router.
 
-## Документация
+## How it works
 
-- [Карта репозитория](docs/MAP.md) — где что лежит
-- [Архитектура](docs/ARCHITECTURE.md) — почему страница устроена именно так
-- [Правила работы](AGENTS.md)
+Stock LuCI loads the files in
+`/www/luci-static/resources/view/status/include` in alphabetical order.
+Overview Manager adds an early service include, matches the cards to their
+source files and applies the layout stored in UCI to the DOM.
 
-## Лицензия
+Files belonging to other packages are never modified, renamed or deleted.
+Removing Overview Manager restores stock LuCI behaviour on its own.
+
+## Translations
+
+The interface uses the stock LuCI mechanism: `_()` in JavaScript and gettext
+catalogues in `po/`. At build time `po/<lang>/overview-manager.po` is compiled
+into `/usr/lib/lua/luci/i18n/overview-manager.<lang>.lmo` and ships in the main
+package, and `/etc/uci-defaults/luci-app-overview-manager` registers the
+language in `luci.languages`. The interface language follows the LuCI setting;
+no separate `luci-i18n-*` package is needed.
+
+The package translates only its own strings: a fully Russian LuCI also needs
+`luci-i18n-base-ru`. A new language is added as a
+`po/<lang>/overview-manager.po` catalogue; `scripts/test-po2lmo.py` checks that
+the catalogues match the sources.
+
+## Limitations
+
+A LuCI status include has no common description of its internals: every widget
+implements arbitrary `load()` and `render()`. Overview Manager therefore
+arranges the order and visibility of cards, but does not edit their contents.
+
+A hidden widget is not displayed, but its own data collection may still run on
+the page poll.
+
+## Development
+
+```sh
+./scripts/ci-check.sh
+```
+
+Building, signing and releasing: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+
+## Documentation
+
+- [Repository map](docs/MAP.md) - where things live
+- [Architecture](docs/ARCHITECTURE.md) - why the page is built this way
+- [Development](docs/DEVELOPMENT.md) - building, signing and releasing
+
+## Support
+
+Questions and bug reports go to
+[Issues](https://github.com/Nikitid/luci-app-overview-manager/issues/new/choose): pick the form that
+fits. Report a vulnerability privately through
+[a security advisory](https://github.com/Nikitid/luci-app-overview-manager/security/advisories/new).
+English or Russian is fine.
+
+## License
 
 [MIT](LICENSE)
