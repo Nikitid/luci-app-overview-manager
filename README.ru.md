@@ -9,6 +9,8 @@
 Пакет `luci-app-overview-manager` - LuCI-приложение для настройки карточек на
 странице **Status -> Overview**.
 
+![Список виджетов в Overview Manager](docs/images/widgets.png)
+
 ## Возможности
 
 - порядок виджетов меняется перетаскиванием или кнопками "выше" и "ниже";

@@ -9,6 +9,8 @@
 The `luci-app-overview-manager` package is a LuCI application for arranging
 the cards on the **Status -> Overview** page.
 
+![Overview Manager widget list](docs/images/widgets.png)
+
 ## Features
 
 - reorder widgets by dragging or with the up and down buttons;
